@@ -9,6 +9,6 @@ docs = extract_from_folder("data/images", "data/pptx")
 store_in_faiss(docs)
 
 #Step 3: Query
-query = "What are the main points from the presentation?"
+query = "What is product backlog?"
 answer = query_ollama_with_context(query)
 #print("\nAnswer:\n", answer)

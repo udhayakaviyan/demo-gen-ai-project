@@ -31,10 +31,10 @@ def extract_from_folder(image_folder, pptx_folder):
             text = extract_text_from_image(path)
           #  print("text",text)
             docs.append({"filename": filename, "content": text})
-    # for filename in os.listdir(pptx_folder):
-    #     if filename.lower().endswith(".pptx"):
-    #         path = os.path.join(pptx_folder, filename)
-    #         text = extract_text_from_pptx(path)
-    #         docs.append({"filename": filename, "content": text})
+    for filename in os.listdir(pptx_folder):
+        if filename.lower().endswith(".pptx"):
+            path = os.path.join(pptx_folder, filename)
+            text = extract_text_from_pptx(path)
+            docs.append({"filename": filename, "content": text})
     
     return docs
