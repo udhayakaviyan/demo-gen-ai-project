@@ -1,0 +1,54 @@
+import faiss
+import ollama
+import numpy as np
+import requests
+import pickle
+import os
+
+PERSIST_PATH = "vector_store"
+
+def generate_embedding(text: str) -> list[float]:
+    response = requests.post(
+        "http://localhost:11434/api/embeddings",
+        json={"model": "nomic-embed-text", "prompt": text}
+    )
+    response.raise_for_status()
+    return response.json()["embedding"]
+
+def query_ollama_with_context(query: str, top_k: int = 1) -> str:
+    index = faiss.read_index(os.path.join(PERSIST_PATH, "index.faiss"))
+    with open(os.path.join(PERSIST_PATH, "metadata.pkl"), "rb") as f:
+        docs = pickle.load(f)
+
+    query_embedding = np.array([generate_embedding(query)], dtype="float32")
+   # print("query",query_embedding)
+    distances, indices = index.search(query_embedding,top_k)
+    matched_docs = [docs[i]["content"] for i in indices[0] if i < len(docs)]
+    #print("match",matched_docs)
+    context = "\n\n".join(matched_docs)
+    prompt = f"Context:\n{context}\n\nQuestion: {query}\n\nAnswer:"
+    print("prompt",prompt,"end of prompt")
+    # response = requests.post(
+    #     "http://localhost:11434/api/generate",
+    #     json={"model": "mistral", "prompt": prompt, "stream": False}
+    # )
+    try:
+        response = ollama.chat(
+        model='mistral',
+        messages=[
+        {"role": "user", "content": prompt}
+        ]
+        )
+        print(response["message"]["content"])
+       
+    except requests.exceptions.Timeout:
+        return "❌ Request timed out. Make sure Ollama is not overloaded."
+    except requests.exceptions.ConnectionError:
+        return "❌ Cannot connect to Ollama. Is it running?"
+    except requests.exceptions.HTTPError as e:
+        return f"❌ HTTP error: {e.response.status_code} - {e.response.text}"
+    except Exception as e:
+        return f"❌ Unexpected error: {e}"
+    # response.raise_for_status()
+    # print("response",response)
+    #return response.json()["response"].strip()
