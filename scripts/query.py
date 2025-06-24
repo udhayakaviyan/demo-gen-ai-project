@@ -25,24 +25,17 @@ def query_ollama_with_context(query: str, top_k: int = 1) -> str:
     matched_docs = [docs[i]["content"] for i in indices[0] if i < len(docs)]
     context = "\n\n".join(matched_docs)
     prompt = f"Context:\n{context}\n\nQuestion: {query}\n\nAnswer:"
-    print("prompt",prompt,"end of prompt")
     try:
         response = ollama.chat(
         model='mistral',
         messages=[
         {"role": "user", "content": prompt}
-        ]
+        ],stream=True
         )
-        print(response["message"]["content"])
-       
-    except requests.exceptions.Timeout:
-        return "❌ Request timed out. Make sure Ollama is not overloaded."
-    except requests.exceptions.ConnectionError:
-        return "❌ Cannot connect to Ollama. Is it running?"
-    except requests.exceptions.HTTPError as e:
-        return f"❌ HTTP error: {e.response.status_code} - {e.response.text}"
+        for chunk in response:
+            print(chunk['message']['content'], end='', flush=True)           
     except Exception as e:
-        return f"❌ Unexpected error: {e}"
+        print(f"\n Error: {e}") 
     # response.raise_for_status()
     # print("response",response)
     #return response.json()["response"].strip()

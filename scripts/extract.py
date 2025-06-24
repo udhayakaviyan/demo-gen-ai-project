@@ -26,30 +26,28 @@ def extract_text_from_pptx(pptx_path):
 
 def extract_from_folder(image_folder, pptx_folder):
     docs = []
-    convert_ppt_to_pptx(pptx_folder)
-    for filename in os.listdir(image_folder):
-        if filename.lower().endswith((".png", ".jpg", ".jpeg")):
-            path = os.path.join(image_folder, filename)
-            print(path,"image----------------")
-            text = extract_text_from_image(path)
-          #  print("text",text)
-            docs.append({"filename": filename, "content": text})
+    if any(f.lower().endswith(".ppt") and os.path.isfile(os.path.join(pptx_folder, f)) for f in os.listdir(pptx_folder)):
+        convert_ppt_to_pptx(pptx_folder)
+    # for filename in os.listdir(image_folder):
+    #     if filename.lower().endswith((".png", ".jpg", ".jpeg")):
+    #         path = os.path.join(image_folder, filename)
+    #         text = extract_text_from_image(path)
+    #         print(text)
+    #         #  print("text",text)
+    #         docs.append({"filename": filename, "content": text})
     for filename in os.listdir(pptx_folder):
         if filename.lower().endswith(".pptx"):
             path = os.path.join(pptx_folder, filename)
             text = extract_text_from_pptx(path)
-            docs.append({"filename": filename, "content": text})
-    
+            print(text)
+            docs.append({"filename": filename, "content": text})      
     return docs
 
 def convert_ppt_to_pptx(ppt_folder):
     for file in os.listdir(ppt_folder):
         if file.lower().endswith(".ppt"):
-            print(ppt_folder,file)
             input_path =os.path.abspath( os.path.join(ppt_folder, file))
             #"data/pptx\agile vs waterfall.ppt"
-            
-            print(input_path,"-----")
             assert os.path.exists(input_path)
             try:
                 # subprocess.run(
@@ -58,8 +56,8 @@ def convert_ppt_to_pptx(ppt_folder):
                 # )
                 result =subprocess.run([r"C:\Program Files\LibreOffice\program\soffice.exe", "--headless", "--convert-to", "pptx","--outdir",ppt_folder, input_path],
                 check=True,capture_output=True,text=True)
-                print(result.stdout)
-                print(result.stderr)
+                # print(result.stdout)
+                # print(result.stderr)
                 
                 print(f"✅ Converted: {file}")
             except subprocess.CalledProcessError as e:
