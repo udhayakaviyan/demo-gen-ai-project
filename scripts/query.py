@@ -21,17 +21,11 @@ def query_ollama_with_context(query: str, top_k: int = 1) -> str:
         docs = pickle.load(f)
 
     query_embedding = np.array([generate_embedding(query)], dtype="float32")
-   # print("query",query_embedding)
     distances, indices = index.search(query_embedding,top_k)
     matched_docs = [docs[i]["content"] for i in indices[0] if i < len(docs)]
-    #print("match",matched_docs)
     context = "\n\n".join(matched_docs)
     prompt = f"Context:\n{context}\n\nQuestion: {query}\n\nAnswer:"
     print("prompt",prompt,"end of prompt")
-    # response = requests.post(
-    #     "http://localhost:11434/api/generate",
-    #     json={"model": "mistral", "prompt": prompt, "stream": False}
-    # )
     try:
         response = ollama.chat(
         model='mistral',

@@ -4,3 +4,4 @@ opencv-python
 python-pptx
 faiss-cpu
 requests
+subprocess

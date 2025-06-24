@@ -3,6 +3,7 @@ from PIL import Image
 import cv2
 import os
 from pptx import Presentation
+import subprocess
 
 def extract_text_from_image(image_path):
     image = Image.open(image_path)
@@ -25,9 +26,11 @@ def extract_text_from_pptx(pptx_path):
 
 def extract_from_folder(image_folder, pptx_folder):
     docs = []
+    convert_ppt_to_pptx(pptx_folder)
     for filename in os.listdir(image_folder):
         if filename.lower().endswith((".png", ".jpg", ".jpeg")):
             path = os.path.join(image_folder, filename)
+            print(path,"image----------------")
             text = extract_text_from_image(path)
           #  print("text",text)
             docs.append({"filename": filename, "content": text})
@@ -38,3 +41,26 @@ def extract_from_folder(image_folder, pptx_folder):
             docs.append({"filename": filename, "content": text})
     
     return docs
+
+def convert_ppt_to_pptx(ppt_folder):
+    for file in os.listdir(ppt_folder):
+        if file.lower().endswith(".ppt"):
+            print(ppt_folder,file)
+            input_path =os.path.abspath( os.path.join(ppt_folder, file))
+            #"data/pptx\agile vs waterfall.ppt"
+            
+            print(input_path,"-----")
+            assert os.path.exists(input_path)
+            try:
+                # subprocess.run(
+                #     ["soffice", "--headless", "--convert-to", "pptx", input_path],
+                #     check=True
+                # )
+                result =subprocess.run([r"C:\Program Files\LibreOffice\program\soffice.exe", "--headless", "--convert-to", "pptx","--outdir",ppt_folder, input_path],
+                check=True,capture_output=True,text=True)
+                print(result.stdout)
+                print(result.stderr)
+                
+                print(f"✅ Converted: {file}")
+            except subprocess.CalledProcessError as e:
+                print(f"❌ Failed: {file} - {e}")
