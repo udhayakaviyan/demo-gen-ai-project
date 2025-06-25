@@ -4,11 +4,20 @@ import cv2
 import os
 from pptx import Presentation
 import subprocess
+import easyocr
+
+ocr_reader = easyocr.Reader(['en'], gpu=False)
 
 def extract_text_from_image(image_path):
-    image = Image.open(image_path)
-    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-    return pytesseract.image_to_string(image)
+    # with open(image_path, "wb") as f:
+    #         f.write(image_data)
+            result = ocr_reader.readtext(image_path, detail=0)
+            text = "\n".join(result).strip()
+            return text
+                 # text = extract_text_from_image(cleaned_path)
+    # image = Image.open(image_path)
+    # pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    # return pytesseract.image_to_string(image)
 
 def extract_text_from_pptx(pptx_path):
     prs = Presentation(pptx_path)
@@ -22,19 +31,36 @@ def extract_text_from_pptx(pptx_path):
                 for row in shape.table.rows:
                     row_text = [cell.text.strip() for cell in row.cells]
                     content.append("\t".join(row_text))
+            # Extract images with OCR
+            elif shape.shape_type == 13 and hasattr(shape, "image"):
+                try:
+                    image = shape.image
+                    ext = image.ext
+                    image_data = image.blob
+                    image_filename = f"{shape.image.sha1}.{ext}"
+                    image_path = os.path.join("output_images", image_filename)
+                    with open(image_path, "wb") as f:
+                        f.write(image_data)
+                    result = ocr_reader.readtext(image_path, detail=0)
+                    text = "\n".join(result).strip()
+                 # text = extract_text_from_image(cleaned_path)
+                    print(text)
+                    content.append(text)
+                except Exception as e:
+                    content.append(f"[Image OCR failed: {e}]")
     return "\n".join(content)
 
 def extract_from_folder(image_folder, pptx_folder):
     docs = []
     if any(f.lower().endswith(".ppt") and os.path.isfile(os.path.join(pptx_folder, f)) for f in os.listdir(pptx_folder)):
         convert_ppt_to_pptx(pptx_folder)
-    # for filename in os.listdir(image_folder):
-    #     if filename.lower().endswith((".png", ".jpg", ".jpeg")):
-    #         path = os.path.join(image_folder, filename)
-    #         text = extract_text_from_image(path)
-    #         print(text)
-    #         #  print("text",text)
-    #         docs.append({"filename": filename, "content": text})
+    for filename in os.listdir(image_folder):
+        if filename.lower().endswith((".png", ".jpg", ".jpeg")):
+            path = os.path.join(image_folder, filename)
+            text = extract_text_from_image(path)
+            print(text)
+            #  print("text",text)
+            docs.append({"filename": filename, "content": text})
     for filename in os.listdir(pptx_folder):
         if filename.lower().endswith(".pptx"):
             path = os.path.join(pptx_folder, filename)

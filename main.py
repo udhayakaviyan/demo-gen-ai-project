@@ -1,4 +1,4 @@
 from scripts.query import query_ollama_with_context
 
-query = "advantages of waterfall methodology?"
+query = "stages in agile development methodology, give instructured format?"
 answer = query_ollama_with_context(query)
