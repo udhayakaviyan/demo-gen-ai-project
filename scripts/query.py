@@ -1,6 +1,6 @@
 import faiss
-import ollama
 import numpy as np
+import ollama
 import requests
 import pickle
 import os
@@ -33,7 +33,7 @@ def query_ollama_with_context(query: str, top_k: int = 1) -> str:
         ],stream=True
         )
         for chunk in response:
-            print(chunk['message']['content'], end='', flush=True)           
+            yield  chunk['message']['content']    
     except Exception as e:
         print(f"\n Error: {e}") 
     # response.raise_for_status()
