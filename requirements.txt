@@ -1,0 +1,10 @@
+pytesseract
+Pillow
+opencv-python
+python-pptx
+faiss-cpu
+requests
+easyocr
+ollama
+streamlit
+textwrap

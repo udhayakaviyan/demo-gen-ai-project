@@ -40,6 +40,7 @@ def extract_text_from_pptx(pptx_path):
                  # text = extract_text_from_image(cleaned_path)
                     # print(text)
                     content.append(text)
+
                 except Exception as e:
                     content.append(f"[Image OCR failed: {e}]")
     return "\n".join(content)
