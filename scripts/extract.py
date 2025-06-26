@@ -9,15 +9,9 @@ import easyocr
 ocr_reader = easyocr.Reader(['en'], gpu=False)
 
 def extract_text_from_image(image_path):
-    # with open(image_path, "wb") as f:
-    #         f.write(image_data)
             result = ocr_reader.readtext(image_path, detail=0)
             text = "\n".join(result).strip()
             return text
-                 # text = extract_text_from_image(cleaned_path)
-    # image = Image.open(image_path)
-    # pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-    # return pytesseract.image_to_string(image)
 
 def extract_text_from_pptx(pptx_path):
     prs = Presentation(pptx_path)
@@ -44,7 +38,7 @@ def extract_text_from_pptx(pptx_path):
                     result = ocr_reader.readtext(image_path, detail=0)
                     text = "\n".join(result).strip()
                  # text = extract_text_from_image(cleaned_path)
-                    print(text)
+                    # print(text)
                     content.append(text)
                 except Exception as e:
                     content.append(f"[Image OCR failed: {e}]")
@@ -58,14 +52,14 @@ def extract_from_folder(image_folder, pptx_folder):
         if filename.lower().endswith((".png", ".jpg", ".jpeg")):
             path = os.path.join(image_folder, filename)
             text = extract_text_from_image(path)
-            print(text)
+            # print(text)
             #  print("text",text)
             docs.append({"filename": filename, "content": text})
     for filename in os.listdir(pptx_folder):
         if filename.lower().endswith(".pptx"):
             path = os.path.join(pptx_folder, filename)
             text = extract_text_from_pptx(path)
-            print(text)
+            # print(text)
             docs.append({"filename": filename, "content": text})      
     return docs
 
@@ -76,14 +70,8 @@ def convert_ppt_to_pptx(ppt_folder):
             #"data/pptx\agile vs waterfall.ppt"
             assert os.path.exists(input_path)
             try:
-                # subprocess.run(
-                #     ["soffice", "--headless", "--convert-to", "pptx", input_path],
-                #     check=True
-                # )
                 result =subprocess.run([r"C:\Program Files\LibreOffice\program\soffice.exe", "--headless", "--convert-to", "pptx","--outdir",ppt_folder, input_path],
                 check=True,capture_output=True,text=True)
-                # print(result.stdout)
-                # print(result.stderr)
                 
                 print(f"✅ Converted: {file}")
             except subprocess.CalledProcessError as e:

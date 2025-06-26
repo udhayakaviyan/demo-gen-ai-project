@@ -19,11 +19,21 @@ def query_ollama_with_context(query: str, top_k: int = 1) -> str:
     index = faiss.read_index(os.path.join(PERSIST_PATH, "index.faiss"))
     with open(os.path.join(PERSIST_PATH, "metadata.pkl"), "rb") as f:
         docs = pickle.load(f)
-
     query_embedding = np.array([generate_embedding(query)], dtype="float32")
     distances, indices = index.search(query_embedding,top_k)
-    matched_docs = [docs[i]["content"] for i in indices[0] if i < len(docs)]
+    print(distances,indices)
+    matched_docs = []
+    # matched_docs = [docs[i]["content"] for i in indices[0] if i < len(docs) and distances < DISTANCE_THRESHOLD]
+    for i, dist in zip(indices[0], distances[0]):
+        if i < len(docs):
+            doc = docs[i]
+            content = doc["content"] if isinstance(doc, dict) else doc
+            matched_docs.append(content)
     context = "\n\n".join(matched_docs)
+    print(matched_docs,"iiiiiiiiiiiiiii")
+    if not matched_docs:
+        return "No relveant info found "
+    # print(context)
     prompt = f"Context:\n{context}\n\nQuestion: {query}\n\nAnswer:"
     try:
         response = ollama.chat(
