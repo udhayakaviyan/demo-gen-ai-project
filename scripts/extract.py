@@ -48,6 +48,7 @@ def extract_from_folder(image_folder, pptx_folder):
     docs = []
     if any(f.lower().endswith(".ppt") and os.path.isfile(os.path.join(pptx_folder, f)) for f in os.listdir(pptx_folder)):
         convert_ppt_to_pptx(pptx_folder)
+        delete_ppt_files(ppt_folder)
     for filename in os.listdir(image_folder):
         if filename.lower().endswith((".png", ".jpg", ".jpeg")):
             path = os.path.join(image_folder, filename)
@@ -76,3 +77,13 @@ def convert_ppt_to_pptx(ppt_folder):
                 print(f"✅ Converted: {file}")
             except subprocess.CalledProcessError as e:
                 print(f"❌ Failed: {file} - {e}")
+
+def delete_ppt_files(ppt_folder):
+    for file in os.listdir(ppt_folder):
+        if file.lower().endswith(".ppt"):
+            ppt_path = os.path.join(ppt_folder, file)
+            try:
+                os.remove(ppt_path)
+                print(f"🗑️ Deleted: {ppt_path}")
+            except Exception as e:
+                print(f"❌ Error deleting {ppt_path}: {e}")
