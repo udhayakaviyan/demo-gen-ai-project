@@ -41,11 +41,11 @@ with st.expander("📤 Upload & Index Files"):
             with open(filepath, "wb") as f:
                 f.write(file.getbuffer())
 
-        if st.button("🔍 Extract & Store in Vector DB"):
+        if st.button("🔍 Extract & Store"):
             with st.spinner("Processing files and building FAISS index..."):
                 docs = extract_from_folder(image_folder, pptx_folder)
                 store_in_faiss(docs)
-                st.success(f"✅ Processed and stored {len(docs)} document(s)")
+                st.success(f"✅ Processed and stored document(s)")
 
 with st.expander("💬 Ask a Question"):
     query = st.text_input("What do you want to know?")
@@ -55,9 +55,10 @@ with st.expander("💬 Ask a Question"):
         status = st.status("Thinking...")
         container = st.empty()
         full_response = ""
-        text ="You are an expert assistant. Use the context below to answer the user question as precisely and accurately as possible from given embedding context.the question is "
+        #text ="You are an expert assistant. Use the context below to answer the user question as precisely and accurately as possible from given embedding context.the question is "
+        text= "Answer accurately the following question only from the context provided, dont modify the answer much. If you cant find the relevant answer to the question from context just say 'I am afraid I dont have knowledge on this topic.'. Do not hallucinate or create answer on your own which is not from context which I give. The following will be the context and question"
         print(text+query)
-        for i, chunk in enumerate(query_ollama_with_context(text+query)):
+        for i, chunk in enumerate(query_ollama_with_context(text,query)):
             if i == 0:
                 status.update(label="generating",state= "running")
             full_response += chunk

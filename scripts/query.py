@@ -15,7 +15,7 @@ def generate_embedding(text: str) -> list[float]:
     response.raise_for_status()
     return response.json()["embedding"]
 
-def query_ollama_with_context(query: str, top_k: int = 1) -> str:
+def query_ollama_with_context(text:str,query: str, top_k: int = 1) -> str:
     index = faiss.read_index(os.path.join(PERSIST_PATH, "index.faiss"))
     with open(os.path.join(PERSIST_PATH, "metadata.pkl"), "rb") as f:
         docs = pickle.load(f)
@@ -34,7 +34,7 @@ def query_ollama_with_context(query: str, top_k: int = 1) -> str:
     if not matched_docs:
         return "No relveant info found "
     # print(context)
-    prompt = f"Context:\n{context}\n\nQuestion: {query}\n\nAnswer:"
+    prompt = f"{text}Context:\n{context}\n\nQuestion: {query}\n\nAnswer:"
     try:
         response = ollama.chat(
         model='mistral',
